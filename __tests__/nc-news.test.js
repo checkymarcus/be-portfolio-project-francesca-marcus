@@ -7,8 +7,8 @@ const {
   topicData,
   userData,
 } = require("../db/data/test-data/index");
-const { string } = require("pg-format");
 const app = require("../server/app");
+const endpointJSON = require("../endpoints.json");
 
 beforeEach(() => {
   return seed({ commentData, topicData, articleData, userData });
@@ -39,35 +39,28 @@ describe("GET - /api", () => {
       .get("/api")
       .expect(200)
       .then((response) => {
-        expect(response.body.api).toEqual({
-          "GET /api": {
-            description:
-              "serves up a json representation of all the available endpoints of the api",
-          },
-          "GET /api/topics": {
-            description: "serves an array of all topics",
-            queries: [],
-            exampleResponse: {
-              topics: [{ slug: "football", description: "Footie!" }],
-            },
-          },
-          "GET /api/articles": {
-            description: "serves an array of all articles",
-            queries: ["author", "topic", "sort_by", "order"],
-            exampleResponse: {
-              articles: [
-                {
-                  title: "Seafood substitutions are increasing",
-                  topic: "cooking",
-                  author: "weegembump",
-                  body: "Text from the article..",
-                  created_at: "2018-05-30T15:59:13.341Z",
-                  votes: 0,
-                  comment_count: 6,
-                },
-              ],
-            },
-          },
+        expect(response.body.api).toEqual(endpointJSON);
+      });
+  });
+});
+
+describe("GET - /api/articles/:articleId", () => {
+  it("200 - GET /api/articles/1 - should return with the article identified by the article id and a response of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((response) => {
+        const article = response.body.article;
+        expect(article).toHaveLength(1);
+        article.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("body");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("article_img_url");
         });
       });
   });

@@ -1,15 +1,15 @@
 const express = require("express");
 const app = express();
-const { getTopics, getAPI } = require("../controllers/topicsController");
 const {
-  psqlErrorHandler,
-  customErrorHandler,
-  serverErrorHandler,
-  postErrorHandler,
-} = require("../error-handling");
+  getTopics,
+  getAPI,
+  getArticleById,
+} = require("../controllers/Controller");
+const { psqlErrorHandler, customErrorHandler } = require("../error-handling");
 
 app.get("/api/topics", getTopics);
 app.get("/api", getAPI);
+app.get("/api/articles/:article_id", getArticleById);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Route not found!" });
@@ -18,9 +18,5 @@ app.all("/*", (req, res) => {
 app.use(psqlErrorHandler);
 
 app.use(customErrorHandler);
-
-app.use(postErrorHandler);
-
-app.use(serverErrorHandler);
 
 module.exports = app;
