@@ -32,12 +32,43 @@ describe("GET - /api/topics", () => {
         });
       });
   });
-  it("404 - GET /api/wrongEndpoint - should respond with a 404 status code when the endpoint does not exist", () => {
+});
+describe("GET - /api", () => {
+  it("should serve up a json representation of all the available endpoints of the api", () => {
     return request(app)
-      .get("/api/wrongEndpoint")
-      .expect(404)
+      .get("/api")
+      .expect(200)
       .then((response) => {
-        expect(response.body.msg).toBe("Route not found!");
+        expect(response.body.api).toEqual({
+          "GET /api": {
+            description:
+              "serves up a json representation of all the available endpoints of the api",
+          },
+          "GET /api/topics": {
+            description: "serves an array of all topics",
+            queries: [],
+            exampleResponse: {
+              topics: [{ slug: "football", description: "Footie!" }],
+            },
+          },
+          "GET /api/articles": {
+            description: "serves an array of all articles",
+            queries: ["author", "topic", "sort_by", "order"],
+            exampleResponse: {
+              articles: [
+                {
+                  title: "Seafood substitutions are increasing",
+                  topic: "cooking",
+                  author: "weegembump",
+                  body: "Text from the article..",
+                  created_at: "2018-05-30T15:59:13.341Z",
+                  votes: 0,
+                  comment_count: 6,
+                },
+              ],
+            },
+          },
+        });
       });
   });
 });
