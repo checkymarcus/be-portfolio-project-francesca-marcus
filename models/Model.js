@@ -9,8 +9,16 @@ selectTopics = () => {
 
 selectAPI = () => {
   return fs.readFile(__dirname + "/../endpoints.json", "utf-8").then((data) => {
-    return JSON.parse(data);
+    return data;
   });
 };
 
-module.exports = { selectTopics, selectAPI };
+selectArticle = (article_id) => {
+  return db
+    .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
+    .then((articles) => {
+      return articles.rows;
+    });
+};
+
+module.exports = { selectTopics, selectAPI, selectArticle };
