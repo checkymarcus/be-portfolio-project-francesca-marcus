@@ -3,6 +3,7 @@ const {
   selectAPI,
   selectArticle,
   selectArticles,
+  selectArticleComments,
 } = require("../models/Model");
 
 const getTopics = (req, res, next) => {
@@ -44,4 +45,22 @@ const getArticles = (req, res, next) => {
     });
 };
 
-module.exports = { getTopics, getAPI, getArticleById, getArticles };
+const getArticleComments = (req, res, next) => {
+  const { article_id } = req.params;
+  selectArticleComments(article_id)
+    .then((articleComments) => {
+      res.status(200).send({ articleComments });
+    })
+    .catch((err) => {
+      console.log(err);
+      next(err);
+    });
+};
+
+module.exports = {
+  getTopics,
+  getAPI,
+  getArticleById,
+  getArticles,
+  getArticleComments,
+};
