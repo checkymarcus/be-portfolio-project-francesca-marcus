@@ -31,4 +31,20 @@ selectArticles = () => {
     });
 };
 
-module.exports = { selectTopics, selectAPI, selectArticle, selectArticles };
+selectArticleComments = (article_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE article_id = ${article_id} ORDER BY created_at DESC`
+    )
+    .then((articleComments) => {
+      return articleComments.rows;
+    });
+};
+
+module.exports = {
+  selectTopics,
+  selectAPI,
+  selectArticle,
+  selectArticles,
+  selectArticleComments,
+};

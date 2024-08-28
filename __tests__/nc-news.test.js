@@ -362,3 +362,41 @@ describe("GET /api/articles", () => {
       });
   });
 });
+describe("200 - GET /api/articles/article_id/comments", () => {
+  it("should get all comments from a specifed article with the following properties: comment_id, votes, created_at, author, body, article_id", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articleComments;
+        const expectedArticles = [
+          {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 16,
+            created_at: "2020-04-06T12:17:00.000Z",
+          },
+          {
+            comment_id: 17,
+            body: "The owls are not what they seem.",
+            article_id: 9,
+            author: "icellusedkars",
+            votes: 20,
+            created_at: "2020-03-14T17:02:00.000Z",
+          },
+        ];
+        expect(articles).toMatchObject(expectedArticles);
+      });
+  });
+  it("should order the comments by most recent", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .then((response) => {
+        const articles = response.body.articleComments;
+        console.log(articles);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
