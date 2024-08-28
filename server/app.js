@@ -4,12 +4,14 @@ const {
   getTopics,
   getAPI,
   getArticleById,
+  getArticles,
 } = require("../controllers/Controller");
 const { psqlErrorHandler, customErrorHandler } = require("../error-handling");
 
 app.get("/api/topics", getTopics);
 app.get("/api", getAPI);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles", getArticles);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Route not found!" });

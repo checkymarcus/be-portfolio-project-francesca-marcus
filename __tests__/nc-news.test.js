@@ -9,6 +9,7 @@ const {
 } = require("../db/data/test-data/index");
 const app = require("../server/app");
 const endpointJSON = require("../endpoints.json");
+const sorted = require("jest-sorted");
 
 beforeEach(() => {
   return seed({ commentData, topicData, articleData, userData });
@@ -62,6 +63,58 @@ describe("GET - /api/articles/:articleId", () => {
           expect(article).toHaveProperty("topic");
           expect(article).toHaveProperty("article_img_url");
         });
+      });
+  });
+});
+
+describe("GET /api/articles", () => {
+  it("200 - GET /api/articles - should return an array of all articles with the properties: author, title, article_id, topic, created_at, votes, article_img_url, comment_count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        console.log(articles);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  it("should add a property called comment_count which looks through the comments table and and adds a count to each article count for every comment associated with the relevant ID", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        if (articles.article_id === 1) {
+          expect(articles.comment_count).toBe(11);
+        } else if (articles.article_id === 9) {
+          expect(articles.comment_count).toBe(2);
+        } else if (articles.article_id === 5) {
+          expect(articles.comment_count).toBe(5);
+        } else if (articles.article_id === 6) {
+          expect(articles.comment_count).toBe(1);
+        } else if (articles.article_id === 3) {
+          expect(articles.comment_count).toBe(2);
+        }
+      });
+  });
+  it("should order the articles by the date they were created in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const articles = response.body.articles;
+        console.log(articles);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
