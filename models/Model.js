@@ -14,9 +14,15 @@ selectAPI = () => {
 };
 
 selectArticle = (article_id) => {
+  if (isNaN(Number(article_id))) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
   return db
     .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
     .then((articles) => {
+      if (articles.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
       return articles.rows;
     });
 };
@@ -32,32 +38,54 @@ selectArticles = () => {
 };
 
 selectArticleComments = (article_id) => {
+  if (isNaN(Number(article_id))) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
   return db
     .query(
       `SELECT * FROM comments WHERE article_id = ${article_id} ORDER BY created_at DESC`
     )
     .then((articleComments) => {
-      return articleComments.rows;
+      if (articleComments.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      } else {
+        return articleComments.rows;
+      }
     });
 };
 
 postTheCommentTo = (responseBody, article_id) => {
   const { username, body } = responseBody;
-  return fs
-    .readFile(`${__dirname}/../db/data/test-data/users.js`, "utf-8")
-    .then((data) => {
-      if (!data.includes(username)) {
-        return Promise.reject({ status: 400, msg: "Bad request" });
-      } else {
-        return db
-          .query(
-            `INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *`,
-            [username, body, article_id]
-          )
-          .then((postedComment) => {
-            return postedComment.rows;
-          });
+  if (isNaN(Number(article_id))) {
+    return Promise.reject({ status: 400, msg: "Bad Request - Invalid ID" });
+  }
+  return db
+    .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
       }
+    })
+    .then(() => {
+      return db
+        .query(`SELECT * FROM users WHERE username = $1`, [username])
+        .then((result) => {
+          if (result.rows.length === 0) {
+            return Promise.reject({
+              status: 404,
+              msg: "Username not found in database",
+            });
+          } else {
+            return db
+              .query(
+                `INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *`,
+                [username, body, article_id]
+              )
+              .then((postedComment) => {
+                return postedComment.rows;
+              });
+          }
+        });
     });
 };
 

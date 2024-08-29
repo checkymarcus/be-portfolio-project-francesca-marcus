@@ -69,6 +69,24 @@ describe("GET - /api/articles/:articleId", () => {
         });
       });
   });
+  it("should return 404 - not found - when passed an ID that does not exist in the database", () => {
+    return request(app)
+      .get("/api/articles/4000")
+      .expect(404)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Not found");
+      });
+  });
+  it("should return 400 - bad request - when passed an invalid ID", () => {
+    return request(app)
+      .get("/api/articles/invalid-id")
+      .expect(400)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Bad request");
+      });
+  });
 });
 
 describe("GET /api/articles", () => {
@@ -155,6 +173,24 @@ describe("200 - GET /api/articles/:article_id/comments", () => {
         });
       });
   });
+  it("should return 404 - not found - when passed a valid id that doesn't exist within the database", () => {
+    return request(app)
+      .get("/api/articles/4000/comments")
+      .expect(404)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Not Found");
+      });
+  });
+  it("should return 400 - bad request - when passed an invalid id", () => {
+    return request(app)
+      .get("/api/articles/invalid-id/comments")
+      .expect(400)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("201 - POST - /api/articles/:article_id/comments", () => {
@@ -183,7 +219,7 @@ describe("201 - POST - /api/articles/:article_id/comments", () => {
         });
       });
   });
-  it("should respond with a 400 Bad Request if the username trying to be posted does not currently exist within the users database", () => {
+  it("should respond with a 404 'not found' error if the username trying to be posted does not currently exist within the users database", () => {
     const newCommentObj = {
       username: "checkymarcus",
       body: "do you like my body?",
@@ -191,10 +227,30 @@ describe("201 - POST - /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/2/comments")
       .send(newCommentObj)
+      .expect(404)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Username not found in database");
+      });
+  });
+  it("should respond with a 400 Bad Request if the article_id is invalid", () => {
+    return request(app)
+      .post("/api/articles/invalid-id/comments")
       .expect(400)
       .then((response) => {
         const errorMsg = response.body.msg;
-        expect(errorMsg).toBe("Bad request");
+        expect(errorMsg).toBe("Bad Request - Invalid ID");
+      });
+  });
+  it("should respond with a 404 'not found' error if the ID is a valid number but doesn't exist within the database yet", () => {
+    return request(app)
+      .post("/api/articles/4000/comments")
+      .expect(404)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        const status = response.status;
+        expect(status).toBe(404);
+        expect(errorMsg).toBe("Not Found");
       });
   });
 });
