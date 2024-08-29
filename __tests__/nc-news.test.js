@@ -7,7 +7,7 @@ const {
   topicData,
   userData,
 } = require("../db/data/test-data/index");
-const app = require("../server/app");
+const app = require("../app");
 const endpointJSON = require("../endpoints.json");
 const sorted = require("jest-sorted");
 

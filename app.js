@@ -6,8 +6,8 @@ const {
   getArticleById,
   getArticles,
   getArticleComments,
-} = require("../controllers/Controller");
-const { psqlErrorHandler, customErrorHandler } = require("../error-handling");
+} = require("./controllers/Controller");
+const { psqlErrorHandler, customErrorHandler } = require("./error-handling");
 
 app.get("/api/topics", getTopics);
 app.get("/api", getAPI);
