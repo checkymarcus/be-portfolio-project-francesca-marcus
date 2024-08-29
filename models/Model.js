@@ -41,10 +41,31 @@ selectArticleComments = (article_id) => {
     });
 };
 
+postTheCommentTo = (responseBody, article_id) => {
+  const { username, body } = responseBody;
+  return fs
+    .readFile(`${__dirname}/../db/data/test-data/users.js`, "utf-8")
+    .then((data) => {
+      if (!data.includes(username)) {
+        return Promise.reject({ status: 400, msg: "Bad request" });
+      } else {
+        return db
+          .query(
+            `INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *`,
+            [username, body, article_id]
+          )
+          .then((postedComment) => {
+            return postedComment.rows;
+          });
+      }
+    });
+};
+
 module.exports = {
   selectTopics,
   selectAPI,
   selectArticle,
   selectArticles,
   selectArticleComments,
+  postTheCommentTo,
 };

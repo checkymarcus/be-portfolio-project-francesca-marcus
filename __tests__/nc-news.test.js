@@ -124,14 +124,14 @@ describe("GET /api/articles", () => {
       });
   });
 });
-describe("200 - GET /api/articles/article_id/comments", () => {
+describe("200 - GET /api/articles/:article_id/comments", () => {
   it("should get all comments from a specifed article with the following properties: comment_id, votes, created_at, author, body, article_id", () => {
     return request(app)
       .get("/api/articles/9/comments")
       .expect(200)
       .then((response) => {
-        const articles = response.body.articleComments;
-        articles.forEach((comment) => {
+        const articleComments = response.body.articleComments;
+        articleComments.forEach((comment) => {
           expect(comment).toEqual(
             expect.objectContaining({
               comment_id: expect.any(Number),
@@ -149,8 +149,52 @@ describe("200 - GET /api/articles/article_id/comments", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .then((response) => {
-        const articles = response.body.articleComments;
-        expect(articles).toBeSortedBy("created_at", { descending: true });
+        const articleComments = response.body.articleComments;
+        expect(articleComments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+});
+
+describe("201 - POST - /api/articles/:article_id/comments", () => {
+  it("should respond with a 201 response and add a comment to an article with the following properties: username, body. And should respond with the posted comment", () => {
+    const newCommentObj = {
+      username: "rogersop",
+      body: "do you like my body?",
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newCommentObj)
+      .expect(201)
+      .then((response) => {
+        const postedComment = response.body.newComment;
+        postedComment.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              article_id: expect.any(Number),
+              body: expect.any(String),
+              author: expect.any(String),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  it("should respond with a 400 Bad Request if the username trying to be posted does not currently exist within the users database", () => {
+    const newCommentObj = {
+      username: "checkymarcus",
+      body: "do you like my body?",
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(newCommentObj)
+      .expect(400)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Bad request");
       });
   });
 });
