@@ -52,7 +52,6 @@ const getArticleComments = (req, res, next) => {
       res.status(200).send({ articleComments });
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
