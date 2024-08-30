@@ -274,7 +274,6 @@ describe("200 - PATCH - /api/articles/:article_id", () => {
       .send(updateVotes)
       .then((response) => {
         const updatedByVotes = response.body.updatedArticle;
-        expect({ ...updatedByVotes }).not.toBe({ ...originalArticle });
         expect(updatedByVotes[0].votes).toBe(105);
         expect(originalArticle[0].votes).toBe(100);
       });
@@ -294,8 +293,37 @@ describe("200 - PATCH - /api/articles/:article_id", () => {
       .expect(404)
       .then((response) => {
         const errorMsg = response.body.msg;
-        console.log(errorMsg);
         expect(errorMsg).toBe("Route not found!");
+      });
+  });
+});
+describe("204 - DELETE - /api/comments/:comment_id", () => {
+  it("should delete the comment at the comment_id and return 204 no content", () => {
+    return request(app)
+      .delete("/api/comments/8")
+      .expect(204)
+      .then((response) => {
+        const comment = response.body;
+        console.log(comment);
+        expect(comment).toEqual({});
+      });
+  });
+  it("should respond with a 404 if the comment_id is not found in the comments database", () => {
+    return request(app)
+      .delete("/api/comments/83485347")
+      .expect(404)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Comment not found");
+      });
+  });
+  it("should respond with a 400 if the comment_id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/i-am-not-a-number")
+      .expect(400)
+      .then((response) => {
+        const errorMsg = response.body.msg;
+        expect(errorMsg).toBe("Bad Request - Invalid ID");
       });
   });
 });
