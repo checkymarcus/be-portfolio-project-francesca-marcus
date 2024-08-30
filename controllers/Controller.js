@@ -4,6 +4,7 @@ const {
   selectArticle,
   selectArticles,
   selectArticleComments,
+  updateArticleSelect,
 } = require("../models/Model");
 
 const getTopics = (req, res, next) => {
@@ -40,7 +41,6 @@ const getArticles = (req, res, next) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
@@ -67,6 +67,18 @@ const postComment = (req, res, next) => {
     });
 };
 
+const updateArticle = (req, res, next) => {
+  const responseBody = req.body;
+  const { article_id } = req.params;
+  updateArticleSelect(responseBody, article_id)
+    .then((updatedArticle) => {
+      res.status(200).send({ updatedArticle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getTopics,
   getAPI,
@@ -74,4 +86,5 @@ module.exports = {
   getArticles,
   getArticleComments,
   postComment,
+  updateArticle,
 };
