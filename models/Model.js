@@ -120,6 +120,12 @@ deleteCommentModel = (comment_id) => {
     });
 };
 
+selectUsers = () => {
+  return db.query(`SELECT * FROM users`).then((response) => {
+    return response.rows;
+  });
+};
+
 module.exports = {
   selectTopics,
   selectAPI,
@@ -129,4 +135,5 @@ module.exports = {
   postTheCommentTo,
   updateArticleSelect,
   deleteCommentModel,
+  selectUsers,
 };

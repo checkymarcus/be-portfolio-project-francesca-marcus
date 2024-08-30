@@ -302,7 +302,6 @@ describe("204 - DELETE - /api/comments/:comment_id", () => {
       .expect(204)
       .then((response) => {
         const comment = response.body;
-        console.log(comment);
         expect(comment).toEqual({});
       });
   });
@@ -322,6 +321,32 @@ describe("204 - DELETE - /api/comments/:comment_id", () => {
       .then((response) => {
         const errorMsg = response.body.msg;
         expect(errorMsg).toBe("Bad Request - Invalid ID");
+      });
+  });
+});
+describe("200 - GET -/api/users", () => {
+  it("should respond with an array of objects with the following properties: username, name, avatar_url", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        const users = response.body.users;
+        console.log(users);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+        });
+      });
+  });
+  it("should respond with 404 - not found - if no users found", () => {
+    return request(app)
+      .get("/api/user,z")
+      .expect(404)
+      .then((response) => {
+        const errMsg = response.body.msg;
+        expect(errMsg).toBe("Route not found!");
       });
   });
 });
