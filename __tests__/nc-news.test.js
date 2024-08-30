@@ -205,52 +205,97 @@ describe("201 - POST - /api/articles/:article_id/comments", () => {
       .expect(201)
       .then((response) => {
         const postedComment = response.body.newComment;
-        postedComment.forEach((comment) => {
-          expect(comment).toEqual(
-            expect.objectContaining({
-              comment_id: expect.any(Number),
-              article_id: expect.any(Number),
-              body: expect.any(String),
-              author: expect.any(String),
-              votes: expect.any(Number),
-              created_at: expect.any(String),
-            })
-          );
-        });
+        expect(postedComment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            article_id: expect.any(Number),
+            body: expect.any(String),
+            author: expect.any(String),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+          })
+        );
       });
   });
-  it("should respond with a 404 'not found' error if the username trying to be posted does not currently exist within the users database", () => {
-    const newCommentObj = {
-      username: "checkymarcus",
-      body: "do you like my body?",
-    };
+});
+it("should respond with a 404 'not found' error if the username trying to be posted does not currently exist within the users database", () => {
+  const newCommentObj = {
+    username: "checkymarcus",
+    body: "do you like my body?",
+  };
+  return request(app)
+    .post("/api/articles/2/comments")
+    .send(newCommentObj)
+    .expect(404)
+    .then((response) => {
+      const errorMsg = response.body.msg;
+      expect(errorMsg).toBe("Username not found in database");
+    });
+});
+it("should respond with a 400 Bad Request if the article_id is invalid", () => {
+  return request(app)
+    .post("/api/articles/invalid-id/comments")
+    .expect(400)
+    .then((response) => {
+      const errorMsg = response.body.msg;
+      expect(errorMsg).toBe("Bad Request - Invalid ID");
+    });
+});
+it("should respond with a 404 'not found' error if the ID is a valid number but doesn't exist within the database yet", () => {
+  return request(app)
+    .post("/api/articles/4000/comments")
+    .expect(404)
+    .then((response) => {
+      const errorMsg = response.body.msg;
+      const status = response.status;
+      expect(status).toBe(404);
+      expect(errorMsg).toBe("Not Found");
+    });
+});
+describe("200 - PATCH - /api/articles/:article_id", () => {
+  it("should update the articles vote count by the amount sent", () => {
+    const originalArticle = [
+      {
+        article_id: 1,
+        title: "Living in the shadow of a great man",
+        topic: "mitch",
+        author: "butter_bridge",
+        body: "I find this existence challenging",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 100,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      },
+    ];
+    const updateVotes = { incVotes: 5 };
     return request(app)
-      .post("/api/articles/2/comments")
-      .send(newCommentObj)
-      .expect(404)
+      .patch("/api/articles/1")
+      .expect(200)
+      .send(updateVotes)
       .then((response) => {
-        const errorMsg = response.body.msg;
-        expect(errorMsg).toBe("Username not found in database");
+        const updatedByVotes = response.body.updatedArticle;
+        expect({ ...updatedByVotes }).not.toBe({ ...originalArticle });
+        expect(updatedByVotes[0].votes).toBe(105);
+        expect(originalArticle[0].votes).toBe(100);
       });
   });
   it("should respond with a 400 Bad Request if the article_id is invalid", () => {
     return request(app)
-      .post("/api/articles/invalid-id/comments")
+      .patch("/api/articles/invalid-id/")
       .expect(400)
       .then((response) => {
         const errorMsg = response.body.msg;
         expect(errorMsg).toBe("Bad Request - Invalid ID");
       });
   });
-  it("should respond with a 404 'not found' error if the ID is a valid number but doesn't exist within the database yet", () => {
+  it("should respond with a 404 'not found' error if article_id does not exist", () => {
     return request(app)
-      .post("/api/articles/4000/comments")
+      .post("/api/articles/40000")
       .expect(404)
       .then((response) => {
         const errorMsg = response.body.msg;
-        const status = response.status;
-        expect(status).toBe(404);
-        expect(errorMsg).toBe("Not Found");
+        console.log(errorMsg);
+        expect(errorMsg).toBe("Route not found!");
       });
   });
 });
