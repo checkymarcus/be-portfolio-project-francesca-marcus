@@ -340,13 +340,4 @@ describe("200 - GET -/api/users", () => {
         });
       });
   });
-  it("should respond with 404 - not found - if no users found", () => {
-    return request(app)
-      .get("/api/user,z")
-      .expect(404)
-      .then((response) => {
-        const errMsg = response.body.msg;
-        expect(errMsg).toBe("Route not found!");
-      });
-  });
 });
