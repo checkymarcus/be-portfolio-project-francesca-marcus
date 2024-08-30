@@ -105,6 +105,21 @@ updateArticleSelect = (responseBody, article_id) => {
     });
 };
 
+deleteCommentModel = (comment_id) => {
+  if (isNaN(Number(comment_id))) {
+    return Promise.reject({ status: 400, msg: "Bad Request - Invalid ID" });
+  }
+  return db
+    .query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *`, [
+      comment_id,
+    ])
+    .then((response) => {
+      if (response.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+    });
+};
+
 module.exports = {
   selectTopics,
   selectAPI,
@@ -113,4 +128,5 @@ module.exports = {
   selectArticleComments,
   postTheCommentTo,
   updateArticleSelect,
+  deleteCommentModel,
 };
