@@ -5,7 +5,7 @@ const {
   selectArticles,
   selectArticleComments,
   updateArticleSelect,
-  deleteCommnetModel,
+  deleteCommentModel,
 } = require("../models/Model");
 
 const getTopics = (req, res, next) => {
@@ -90,6 +90,16 @@ const deleteComment = (req, res, next) => {
     });
 };
 
+const getUsers = (req, res, next) => {
+  selectUsers()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getTopics,
   getAPI,
@@ -99,4 +109,5 @@ module.exports = {
   postComment,
   updateArticle,
   deleteComment,
+  getUsers,
 };
