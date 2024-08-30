@@ -94,21 +94,14 @@ updateArticleSelect = (responseBody, article_id) => {
   if (isNaN(Number(article_id))) {
     return Promise.reject({ status: 400, msg: "Bad Request - Invalid ID" });
   }
+
   return db
-    .query(`SELECT * FROM articles WHERE article_id = ${article_id}`)
-    .then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
-      } else {
-        return db
-          .query(
-            `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`,
-            [incVotes, article_id]
-          )
-          .then((updatedArticle) => {
-            return updatedArticle.rows;
-          });
-      }
+    .query(
+      `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`,
+      [incVotes, article_id]
+    )
+    .then((updatedArticle) => {
+      return updatedArticle.rows;
     });
 };
 
