@@ -27,13 +27,51 @@ selectArticle = (article_id) => {
     });
 };
 
-selectArticles = () => {
+const selectArticles = ({ sort_by = "created_at", order = "desc" }) => {
+  const validColumns = [
+    "article_id",
+    "title",
+    "author",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+  const validOrders = ["asc", "desc"];
+
+  if (!validColumns.includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request - Invalid sort_by column",
+    });
+  }
+
+  if (!validOrders.includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request - Invalid order query",
+    });
+  }
+
   return db
     .query(
-      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count FROM articles LEFT JOIN comments ON comments. article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC`
+      `
+      SELECT 
+        articles.article_id, 
+        articles.title, 
+        articles.author, 
+        articles.topic, 
+        articles.created_at, 
+        articles.votes, 
+        articles.article_img_url,
+        COUNT(comments.article_id)::INT AS comment_count 
+      FROM articles 
+      LEFT JOIN comments ON comments.article_id = articles.article_id 
+      GROUP BY articles.article_id 
+      ORDER BY ${sort_by} ${order};
+    `
     )
-    .then((articles) => {
-      return articles.rows;
+    .then((result) => {
+      return result.rows;
     });
 };
 

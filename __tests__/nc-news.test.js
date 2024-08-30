@@ -141,6 +141,24 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  it("should return a 400 error for an invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid_column")
+      .expect(400)
+      .then((response) => {
+        const errMsg = response.body.msg;
+        expect(errMsg).toBe("Bad Request - Invalid sort_by column");
+      });
+  });
+  it("should return a 400 error for an invalid order value", () => {
+    return request(app)
+      .get("/api/articles?order=invalid_order")
+      .expect(400)
+      .then((response) => {
+        const errMsg = response.body.msg;
+        expect(errMsg).toBe("Bad Request - Invalid order query");
+      });
+  });
 });
 describe("200 - GET /api/articles/:article_id/comments", () => {
   it("should get all comments from a specifed article with the following properties: comment_id, votes, created_at, author, body, article_id", () => {
@@ -331,7 +349,6 @@ describe("200 - GET -/api/users", () => {
       .expect(200)
       .then((response) => {
         const users = response.body.users;
-        console.log(users);
         expect(users).toHaveLength(4);
         users.forEach((user) => {
           expect(user).toHaveProperty("username");
