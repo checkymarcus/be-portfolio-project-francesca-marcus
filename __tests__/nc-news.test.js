@@ -254,19 +254,17 @@ it("should respond with a 404 'not found' error if the ID is a valid number but 
 });
 describe("200 - PATCH - /api/articles/:article_id", () => {
   it("should update the articles vote count by the amount sent", () => {
-    const originalArticle = [
-      {
-        article_id: 1,
-        title: "Living in the shadow of a great man",
-        topic: "mitch",
-        author: "butter_bridge",
-        body: "I find this existence challenging",
-        created_at: "2020-07-09T20:11:00.000Z",
-        votes: 100,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-      },
-    ];
+    const originalArticle = {
+      article_id: 1,
+      title: "Living in the shadow of a great man",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "I find this existence challenging",
+      created_at: "2020-07-09T20:11:00.000Z",
+      votes: 100,
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
     const updateVotes = { incVotes: 5 };
     return request(app)
       .patch("/api/articles/1")
@@ -274,8 +272,8 @@ describe("200 - PATCH - /api/articles/:article_id", () => {
       .send(updateVotes)
       .then((response) => {
         const updatedByVotes = response.body.updatedArticle;
-        expect(updatedByVotes[0].votes).toBe(105);
-        expect(originalArticle[0].votes).toBe(100);
+        expect(updatedByVotes.votes).toBe(105);
+        expect(originalArticle.votes).toBe(100);
       });
   });
   it("should respond with a 400 Bad Request if the article_id is invalid", () => {

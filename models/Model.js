@@ -101,7 +101,7 @@ updateArticleSelect = (responseBody, article_id) => {
       [incVotes, article_id]
     )
     .then((updatedArticle) => {
-      return updatedArticle.rows;
+      return updatedArticle.rows[0];
     });
 };
 
