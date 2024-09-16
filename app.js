@@ -12,7 +12,9 @@ const {
   getUsers,
 } = require("./controllers/Controller");
 const { psqlErrorHandler, customErrorHandler } = require("./error-handling");
+const cors = require("cors");
 app.use(express.json());
+app.use(cors());
 
 app.get("/api/topics", getTopics);
 app.get("/api", getAPI);
